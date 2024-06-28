@@ -1,0 +1,58 @@
+#!/bin/sh -ex
+
+{ set +x; } 2>/dev/null
+export TARGET=${TARGET,,}
+export AWS_DEFAULT_REGION="us-west-2"
+export AWS_PROFILE="${TARGET}-gohbf-user"
+
+fail_check () {
+
+	if [ $? -ne 0 ]
+	then
+		echo "Failed"
+		exit 1
+     fi
+}
+
+
+#cd logstash-indexer-config/
+#fail_check
+
+printf "\nBuilding docker image...\n";
+docker build -f logstash.dockerfile -t logstash .
+fail_check
+
+printf "\nTagging docker image...\n";
+docker tag logstash:latest 035966526420.dkr.ecr.us-west-2.amazonaws.com/"${TARGET}-"logstash:${BUILD_NUMBER}
+fail_check
+
+printf "\nLogin to ECR...\n";
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 035966526420.dkr.ecr.us-west-2.amazonaws.com
+fail_check
+
+printf "\nPushing docker image to ECR...\n";
+docker push 035966526420.dkr.ecr.us-west-2.amazonaws.com/"${TARGET}-"logstash:${BUILD_NUMBER}
+fail_check
+
+printf "\nDone\n";
+
+printf "\nDeploying to ECS\n";
+
+  TASK_NAME="${TARGET}-"logstash
+  SERVICE_NAME="${TARGET}-"logstash
+  IMAGE_NAME="${TARGET}-"logstash
+  CLUSTER_NAME="${TARGET}-"logstash
+  REGION="us-west-2"
+  VERSION=${BUILD_NUMBER}
+  ACCOUNT_NUMBER=035966526420
+
+  NEW_IMAGE=$ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/$IMAGE_NAME:$VERSION
+  TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "$TASK_NAME" --region "$REGION" --output json)
+  echo $TASK_DEFINITION | jq --arg IMAGE "$NEW_IMAGE" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)' > /var/lib/jenkins/jobs/logstash-build-deploy-prod/task-def.json
+  aws ecs register-task-definition --region "$REGION" --cli-input-json file:///var/lib/jenkins/jobs/logstash-build-deploy-prod/task-def.json
+  rm -rf /var/lib/jenkins/jobs/logstash-build-deploy-prod/task-def.json
+  # NEW_REVISION_DATA=$(echo $NEW_REVISION | jq '.taskDefinition.revision')
+
+  aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $TASK_NAME --force-new-deployment
+
+printf "\nSuccessfully Deployed to ECS\n";
