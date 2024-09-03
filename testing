@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation Template to create a private Application Load Balancer (ALB) for a testapplication.
+
+Parameters:
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+    Description: The ID of the VPC where the ALB will be deployed.
+    Default: vpc-0166bcadd854a2d0d
+
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: The Subnet IDs to associate with the ALB 
+    Default: subnet-0d374e15f1f2c7128,subnet-0adce2246846c4a3a
+
+  testAppTargetGroupPort:
+    Type: Number
+    Default: 80
+    Description: The port on which the testapplication listens. Typically 80 for HTTP or 443 for HTTPS.
+
+  TargetIPS:
+    Type: CommaDelimitedlist
+    Default: 
+    Description: Ip address include in the target group
+  
+Resources:
+  testAppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: test-app-alb-sg
+      GroupDescription: Security group for the testapplication ALB
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 10.0.0.0/12
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 10.0.0.0/12
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: 0
+          ToPort: 0
+          CidrIp: 0.0.0.0/0
+
+  testAppALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      Name: test-app-alb
+      Scheme: internal
+      Subnets: !Ref SubnetIds
+      SecurityGroups:
+        - !Ref testAppSecurityGroup
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: '60'  # Sets idle timeout to 60 seconds
+
+  testAppTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties: 
+      Name: test-app-tg
+      Port: !Ref testAppTargetGroupPort
+      Protocol: HTTP
+      VpcId: !Ref VPCId
+      HealthCheckIntervalSeconds: 30
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 5
+      UnhealthyThresholdCount: 2
+      TargetType: instance
+      Targets: 
+        - Id: ?
+        - Id: ?
+
+  testAppALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref testAppTargetGroup
+      LoadBalancerArn: !Ref testAppALB
+      Port: 443
+      Protocol: HTTP
+
+Outputs:
+  ALBDNSName:
+    Description: The DNS name of the ALB.
+    Value: !GetAtt testAppALB.DNSName
+    Export:
+      Name: testAppALBDNSName  # Exports the DNS name of the ALB for use in other stacks
