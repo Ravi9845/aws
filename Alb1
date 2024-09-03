@@ -1,0 +1,148 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  CloudFormation Template to create a private Application Load Balancer (ALB) with path-based routing for a test application.
+
+Parameters:
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+    Description: The ID of the VPC where the ALB will be deployed.
+
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: The Subnet IDs to associate with the ALB (private subnets).
+
+  TestAppTargetGroupPort:
+    Type: Number
+    Default: 80
+    Description: The port on which the test application listens. Typically 80 for HTTP or 443 for HTTPS.
+
+Resources:
+  TestAppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: test-app-alb-sg
+      GroupDescription: Security group for the test application ALB
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: 0
+          ToPort: 0
+          CidrIp: 0.0.0.0/0
+
+  TestAppALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      Name: test-app-alb
+      Scheme: internal
+      Subnets: !Ref SubnetIds
+      SecurityGroups:
+        - !Ref TestAppSecurityGroup
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: '60'
+
+  TestAppTargetGroup1:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties: 
+      Name: test-app-tg-1
+      Port: !Ref TestAppTargetGroupPort
+      Protocol: HTTP
+      VpcId: !Ref VPCId
+      HealthCheckIntervalSeconds: 30
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+      TargetType: instance
+
+  TestAppTargetGroup2:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties: 
+      Name: test-app-tg-2
+      Port: !Ref TestAppTargetGroupPort
+      Protocol: HTTP
+      VpcId: !Ref VPCId
+      HealthCheckIntervalSeconds: 30
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+      TargetType: instance
+
+  TestAppTargetGroup3:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties: 
+      Name: test-app-tg-3
+      Port: !Ref TestAppTargetGroupPort
+      Protocol: HTTP
+      VpcId: !Ref VPCId
+      HealthCheckIntervalSeconds: 30
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+      TargetType: instance
+
+  TestAppALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TestAppTargetGroup1
+      LoadBalancerArn: !Ref TestAppALB
+      Port: 80
+      Protocol: HTTP
+
+  ALBListenerRule1:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref TestAppALBListener
+      Priority: 1
+      Conditions:
+        - Field: path-pattern
+          Values: 
+            - "/path1/*"
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref TestAppTargetGroup1
+
+  ALBListenerRule2:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref TestAppALBListener
+      Priority: 2
+      Conditions:
+        - Field: path-pattern
+          Values: 
+            - "/path2/*"
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref TestAppTargetGroup2
+
+  ALBListenerRule3:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref TestAppALBListener
+      Priority: 3
+      Conditions:
+        - Field: path-pattern
+          Values: 
+            - "/path3/*"
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref TestAppTargetGroup3
+
+Outputs:
+  ALBDNSName:
+    Description: The DNS name of the ALB.
+    Value: !GetAtt TestAppALB.DNSName
+    Export:
+      Name: TestAppALBDNSName
