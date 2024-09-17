@@ -1,0 +1,203 @@
+def generateHtmlForParams(Action, STAGE, aws_deployment_region) {
+    def stage_tag
+    switch (STAGE) {
+        case 'DEV':
+            stage_tag = 'DEV'
+            break
+        case 'RC1':
+            stage_tag = 'RC1'
+            break
+        case 'CQA':
+            stage_tag = 'CQA'
+            break
+        case 'PRD':
+            stage_tag = 'PRD'
+            break
+    }
+
+    if (Action != 'Delete') {
+        // Default param_map
+        def param_map = [
+            ["parameter": "Namespace", "default_value": "dm"],
+            ["parameter": "VPCId", "default_value": "vpc-abc"],
+            ["parameter": "SubnetId1", "default_value": "subnet-cvf"],
+            ["parameter": "SubnetId2", "default_value": "subnet-dfg"],
+            ["parameter": "SubnetId3", "default_value": "subnet-sss"],
+            ["parameter": "VPCidr", "default_value": "tt"],
+            ["parameter": "GatewayVPCidr", "default_value": "eee"],
+            ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-1:tyu:certificate/y-o-u-i-y"]
+        ]
+
+        // Override param_map for specific region and stage
+        switch (aws_deployment_region) {
+            case 'us-east-2':
+                switch (stage_tag) {
+                    case 'DEV':
+                        param_map = [
+                            ["parameter": "Namespace", "default_value": "test-us-east-2-dev"],
+                            ["parameter": "VPCId", "default_value": "vpc-0987654321-dev"],
+                            ["parameter": "SubnetId1", "default_value": "subnet-us-east2-1-dev"],
+                            ["parameter": "SubnetId2", "default_value": "subnet-us-east2-2-dev"],
+                            ["parameter": "SubnetId3", "default_value": "subnet-us-east2-3-dev"],
+                            ["parameter": "VPCidr", "default_value": "10.2.1.0/16"],
+                            ["parameter": "GatewayVPCidr", "default_value": "10.2.0.0/16"],
+                            ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-2:account-id:certificate/dev123"]
+                        ]
+                        break
+                    case 'RC1':
+                        param_map = [
+                            ["parameter": "Namespace", "default_value": "test-us-east-2-rc1"],
+                            ["parameter": "VPCId", "default_value": "vpc-0987654321-rc1"],
+                            ["parameter": "SubnetId1", "default_value": "subnet-us-east2-1-rc1"],
+                            ["parameter": "SubnetId2", "default_value": "subnet-us-east2-2-rc1"],
+                            ["parameter": "SubnetId3", "default_value": "subnet-us-east2-3-rc1"],
+                            ["parameter": "VPCidr", "default_value": "10.2.1.0/16"],
+                            ["parameter": "GatewayVPCidr", "default_value": "10.2.0.0/16"],
+                            ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-2:account-id:certificate/rc1123"]
+                        ]
+                        break
+                    case 'CQA':
+                        param_map = [
+                            ["parameter": "Namespace", "default_value": "test-us-east-2-cqa"],
+                            ["parameter": "VPCId", "default_value": "vpc-0987654321-cqa"],
+                            ["parameter": "SubnetId1", "default_value": "subnet-us-east2-1-cqa"],
+                            ["parameter": "SubnetId2", "default_value": "subnet-us-east2-2-cqa"],
+                            ["parameter": "SubnetId3", "default_value": "subnet-us-east2-3-cqa"],
+                            ["parameter": "VPCidr", "default_value": "10.2.1.0/16"],
+                            ["parameter": "GatewayVPCidr", "default_value": "10.2.0.0/16"],
+                            ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-2:account-id:certificate/cqa123"]
+                        ]
+                        break
+                    case 'PRD':
+                        param_map = [
+                            ["parameter": "Namespace", "default_value": "test-us-east-2-prd"],
+                            ["parameter": "VPCId", "default_value": "vpc-0987654321-prd"],
+                            ["parameter": "SubnetId1", "default_value": "subnet-us-east2-1-prd"],
+                            ["parameter": "SubnetId2", "default_value": "subnet-us-east2-2-prd"],
+                            ["parameter": "SubnetId3", "default_value": "subnet-us-east2-3-prd"],
+                            ["parameter": "VPCidr", "default_value": "10.2.1.0/16"],
+                            ["parameter": "GatewayVPCidr", "default_value": "10.2.0.0/16"],
+                            ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-2:account-id:certificate/prd123"]
+                        ]
+                        break
+                }
+                break
+            case 'us-east-1':
+                switch (stage_tag) {
+                    case 'DEV':
+                        param_map = [
+                            ["parameter": "Namespace", "default_value": "test-us-east-1-dev"],
+                            ["parameter": "VPCId", "default_value": "vpc-0987654321-dev"],
+                            ["parameter": "SubnetId1", "default_value": "subnet-us-east1-1-dev"],
+                            ["parameter": "SubnetId2", "default_value": "subnet-us-east1-2-dev"],
+                            ["parameter": "SubnetId3", "default_value": "subnet-us-east1-3-dev"],
+                            ["parameter": "VPCidr", "default_value": "10.1.1.0/16"],
+                            ["parameter": "GatewayVPCidr", "default_value": "10.1.0.0/16"],
+                            ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-1:account-id:certificate/dev123"]
+                        ]
+                        break
+                    case 'RC1':
+                        param_map = [
+                            ["parameter": "Namespace", "default_value": "test-us-east-1-rc1"],
+                            ["parameter": "VPCId", "default_value": "vpc-0987654321-rc1"],
+                            ["parameter": "SubnetId1", "default_value": "subnet-us-east1-1-rc1"],
+                            ["parameter": "SubnetId2", "default_value": "subnet-us-east1-2-rc1"],
+                            ["parameter": "SubnetId3", "default_value": "subnet-us-east1-3-rc1"],
+                            ["parameter": "VPCidr", "default_value": "10.1.1.0/16"],
+                            ["parameter": "GatewayVPCidr", "default_value": "10.1.0.0/16"],
+                            ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-1:account-id:certificate/rc1123"]
+                        ]
+                        break
+                    case 'CQA':
+                        param_map = [
+                            ["parameter": "Namespace", "default_value": "test-us-east-1-cqa"],
+                            ["parameter": "VPCId", "default_value": "vpc-0987654321-cqa"],
+                            ["parameter": "SubnetId1", "default_value": "subnet-us-east1-1-cqa"],
+                            ["parameter": "SubnetId2", "default_value": "subnet-us-east1-2-cqa"],
+                            ["parameter": "SubnetId3", "default_value": "subnet-us-east1-3-cqa"],
+                            ["parameter": "VPCidr", "default_value": "10.1.1.0/16"],
+                            ["parameter": "GatewayVPCidr", "default_value": "10.1.0.0/16"],
+                            ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-1:account-id:certificate/cqa123"]
+                        ]
+                        break
+                    case 'PRD':
+                        param_map = [
+                            ["parameter": "Namespace", "default_value": "test-us-east-1-prd"],
+                            ["parameter": "VPCId", "default_value": "vpc-0987654321-prd"],
+                            ["parameter": "SubnetId1", "default_value": "subnet-us-east1-1-prd"],
+                            ["parameter": "SubnetId2", "default_value": "subnet-us-east1-2-prd"],
+                            ["parameter": "SubnetId3", "default_value": "subnet-us-east1-3-prd"],
+                            ["parameter": "VPCidr", "default_value": "10.1.1.0/16"],
+                            ["parameter": "GatewayVPCidr", "default_value": "10.1.0.0/16"],
+                            ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-1:account-id:certificate/prd123"]
+                        ]
+                        break
+                }
+                break
+            case 'ap-south-1':
+                switch (stage_tag) {
+                    case 'DEV':
+                        param_map = [
+                            ["parameter": "Namespace", "default_value": "test-ap-south-1-dev"],
+                            ["parameter": "VPCId", "default_value": "vpc-0987654321-dev"],
+                            ["parameter": "SubnetId1", "default_value": "subnet-ap-south1-1-dev"],
+                            ["parameter": "SubnetId2", "default_value": "subnet-ap-south1-2-dev"],
+                            ["parameter": "SubnetId3", "default_value": "subnet-ap-south1-3-dev"],
+                            ["parameter": "VPCidr", "default_value": "10.3.1.0/16"],
+                            ["parameter": "GatewayVPCidr", "default_value": "10.3.0.0/16"],
+                            ["parameter": "certificateArn", "default_value": "arn:aws:acm:ap-south-1:account-id:certificate/dev123"]
+                        ]
+                        break
+                    case 'RC1':
+                        param_map = [
+                            ["parameter": "Namespace", "default_value": "test-ap-south-1-rc1"],
+                            ["parameter": "VPCId", "default_value": "vpc-0987654321-rc1"],
+                            ["parameter": "SubnetId1", "default_value": "subnet-ap-south1-1-rc1"],
+                            ["parameter": "SubnetId2", "default_value": "subnet-ap-south1-2-rc1"],
+                            ["parameter": "SubnetId3", "default_value": "subnet-ap-south1-3-rc1"],
+                            ["parameter": "VPCidr", "default_value": "10.3.1.0/16"],
+                            ["parameter": "GatewayVPCidr", "default_value": "10.3.0.0/16"],
+                            ["parameter": "certificateArn", "default_value": "arn:aws:acm:ap-south-1:account-id:certificate/rc1123"]
+                        ]
+                        break
+                    case 'CQA':
+                        param_map = [
+                            ["parameter": "Namespace", "default_value": "test-ap-south-1-cqa"],
+                            ["parameter": "VPCId", "default_value": "vpc-0987654321-cqa"],
+                            ["parameter": "SubnetId1", "default_value": "subnet-ap-south1-1-cqa"],
+                            ["parameter": "SubnetId2", "default_value": "subnet-ap-south1-2-cqa"],
+                            ["parameter": "SubnetId3", "default_value": "subnet-ap-south1-3-cqa"],
+                            ["parameter": "VPCidr", "default_value": "10.3.1.0/16"],
+                            ["parameter": "GatewayVPCidr", "default_value": "10.3.0.0/16"],
+                            ["parameter": "certificateArn", "default_value": "arn:aws:acm:ap-south-1:account-id:certificate/cqa123"]
+                        ]
+                        break
+                    case 'PRD':
+                        param_map = [
+                            ["parameter": "Namespace", "default_value": "test-ap-south-1-prd"],
+                            ["parameter": "VPCId", "default_value": "vpc-0987654321-prd"],
+                            ["parameter": "SubnetId1", "default_value": "subnet-ap-south1-1-prd"],
+                            ["parameter": "SubnetId2", "default_value": "subnet-ap-south1-2-prd"],
+                            ["parameter": "SubnetId3", "default_value": "subnet-ap-south1-3-prd"],
+                            ["parameter": "VPCidr", "default_value": "10.3.1.0/16"],
+                            ["parameter": "GatewayVPCidr", "default_value": "10.3.0.0/16"],
+                            ["parameter": "certificateArn", "default_value": "arn:aws:acm:ap-south-1:account-id:certificate/prd123"]
+                        ]
+                        break
+                }
+                break
+            // You can add more cases for other regions as needed
+        }
+
+        // Generate HTML output
+        def html = "<html><body><h1>Parameter Values</h1><table border='1'><tr><th>Parameter</th><th>Default Value</th></tr>"
+        param_map.each { param ->
+            html += "<tr><td>${param.parameter}</td><td>${param.default_value}</td></tr>"
+        }
+        html += "</table></body></html>"
+
+        return html
+    } else {
+        return "<html><body><h1>No parameters to display for action 'Delete'</h1></body></html>"
+    }
+}
