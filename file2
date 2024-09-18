@@ -1,1 +1,157 @@
-hello
+switch (STAGE) {
+  case 'DEV':
+    stage_tag = 'DEV'
+    break
+  case 'RC1':
+    stage_tag = 'RC1'
+    break
+  case 'CQA':
+    stage_tag = 'CQA'
+    break
+  case 'PRD':
+    stage_tag = 'PRD'
+    break
+}
+
+if (Action != 'Delete') { 
+    // Default param_map for generic region (us-east-1)
+    param_map = [
+        ["parameter": "Namespace", "default_value": "dm"],
+        ["parameter": "VPCId", "default_value": "vpc-abc"],
+        ["parameter": "SubnetId1", "default_value": "subnet-cvf"],
+        ["parameter": "SubnetId2", "default_value": "subnet-dfg"],
+        ["parameter": "SubnetId3", "default_value": "subnet-sss"],
+        ["parameter": "VPCidr", "default_value": "tt"],
+        ["parameter": "GatewayVPCidr", "default_value": "eee"],
+        ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-1:tyu:certificate/y-o-u-i-y"]
+    ]
+
+    // Override param_map based on AWS_DEPLOYMENT_REGION and stage
+    if (AWS_DEPLOYMENT_REGION == 'us-east-2') {
+        switch (STAGE) {
+            case 'DEV':
+                param_map = [
+                    ["parameter": "Namespace", "default_value": "test-us-east-2"],
+                    ["parameter": "VPCId", "default_value": "vpc-0987654321"],
+                    ["parameter": "SubnetId1", "default_value": "subnet-us-east2-1"],
+                    ["parameter": "SubnetId2", "default_value": "subnet-us-east2-2"],
+                    ["parameter": "SubnetId3", "default_value": "subnet-us-east2-3"],
+                    ["parameter": "VPCidr", "default_value": "10.2.1.0/16"],
+                    ["parameter": "GatewayVPCidr", "default_value": "10.2.0.0/16"],
+                    ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-2:account-id:certificate/dev123"]
+                ]
+                break
+            case 'RC1':
+                param_map = [
+                    ["parameter": "Namespace", "default_value": "rc1-us-east-2"],
+                    ["parameter": "VPCId", "default_value": "vpc-0987654321"],
+                    ["parameter": "SubnetId1", "default_value": "subnet-us-east2-1"],
+                    ["parameter": "SubnetId2", "default_value": "subnet-us-east2-2"],
+                    ["parameter": "SubnetId3", "default_value": "subnet-us-east2-3"],
+                    ["parameter": "VPCidr", "default_value": "10.2.1.0/16"],
+                    ["parameter": "GatewayVPCidr", "default_value": "10.2.0.0/16"],
+                    ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-2:account-id:certificate/rc123"]
+                ]
+                break
+            case 'CQA':
+                param_map = [
+                    ["parameter": "Namespace", "default_value": "cqa-us-east-2"],
+                    ["parameter": "VPCId", "default_value": "vpc-0987654321"],
+                    ["parameter": "SubnetId1", "default_value": "subnet-us-east2-1"],
+                    ["parameter": "SubnetId2", "default_value": "subnet-us-east2-2"],
+                    ["parameter": "SubnetId3", "default_value": "subnet-us-east2-3"],
+                    ["parameter": "VPCidr", "default_value": "10.2.1.0/16"],
+                    ["parameter": "GatewayVPCidr", "default_value": "10.2.0.0/16"],
+                    ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-2:account-id:certificate/cqa123"]
+                ]
+                break
+            case 'PRD':
+                param_map = [
+                    ["parameter": "Namespace", "default_value": "prd-us-east-2"],
+                    ["parameter": "VPCId", "default_value": "vpc-0987654321"],
+                    ["parameter": "SubnetId1", "default_value": "subnet-us-east2-1"],
+                    ["parameter": "SubnetId2", "default_value": "subnet-us-east2-2"],
+                    ["parameter": "SubnetId3", "default_value": "subnet-us-east2-3"],
+                    ["parameter": "VPCidr", "default_value": "10.2.1.0/16"],
+                    ["parameter": "GatewayVPCidr", "default_value": "10.2.0.0/16"],
+                    ["parameter": "certificateArn", "default_value": "arn:aws:acm:us-east-2:account-id:certificate/prd123"]
+                ]
+                break
+        }
+    } else if (AWS_DEPLOYMENT_REGION == 'af-south-1') {
+        switch (STAGE) {
+            case 'DEV':
+                param_map = [
+                    ["parameter": "Namespace", "default_value": "test-af-south-1"],
+                    ["parameter": "VPCId", "default_value": "vpc-af-1234567890"],
+                    ["parameter": "SubnetId1", "default_value": "subnet-af-south1-1"],
+                    ["parameter": "SubnetId2", "default_value": "subnet-af-south1-2"],
+                    ["parameter": "SubnetId3", "default_value": "subnet-af-south1-3"],
+                    ["parameter": "VPCidr", "default_value": "192.168.1.0/24"],
+                    ["parameter": "GatewayVPCidr", "default_value": "192.168.0.0/24"],
+                    ["parameter": "certificateArn", "default_value": "arn:aws:acm:af-south-1:account-id:certificate/dev123"]
+                ]
+                break
+            case 'RC1':
+                param_map = [
+                    ["parameter": "Namespace", "default_value": "rc1-af-south-1"],
+                    ["parameter": "VPCId", "default_value": "vpc-af-1234567890"],
+                    ["parameter": "SubnetId1", "default_value": "subnet-af-south1-1"],
+                    ["parameter": "SubnetId2", "default_value": "subnet-af-south1-2"],
+                    ["parameter": "SubnetId3", "default_value": "subnet-af-south1-3"],
+                    ["parameter": "VPCidr", "default_value": "192.168.1.0/24"],
+                    ["parameter": "GatewayVPCidr", "default_value": "192.168.0.0/24"],
+                    ["parameter": "certificateArn", "default_value": "arn:aws:acm:af-south-1:account-id:certificate/rc123"]
+                ]
+                break
+            case 'CQA':
+                param_map = [
+                    ["parameter": "Namespace", "default_value": "cqa-af-south-1"],
+                    ["parameter": "VPCId", "default_value": "vpc-af-1234567890"],
+                    ["parameter": "SubnetId1", "default_value": "subnet-af-south1-1"],
+                    ["parameter": "SubnetId2", "default_value": "subnet-af-south1-2"],
+                    ["parameter": "SubnetId3", "default_value": "subnet-af-south1-3"],
+                    ["parameter": "VPCidr", "default_value": "192.168.1.0/24"],
+                    ["parameter": "GatewayVPCidr", "default_value": "192.168.0.0/24"],
+                    ["parameter": "certificateArn", "default_value": "arn:aws:acm:af-south-1:account-id:certificate/cqa123"]
+                ]
+                break
+            case 'PRD':
+                param_map = [
+                    ["parameter": "Namespace", "default_value": "prd-af-south-1"],
+                    ["parameter": "VPCId", "default_value": "vpc-af-1234567890"],
+                    ["parameter": "SubnetId1", "default_value": "subnet-af-south1-1"],
+                    ["parameter": "SubnetId2", "default_value": "subnet-af-south1-2"],
+                    ["parameter": "SubnetId3", "default_value": "subnet-af-south1-3"],
+                    ["parameter": "VPCidr", "default_value": "192.168.1.0/24"],
+                    ["parameter": "GatewayVPCidr", "default_value": "192.168.0.0/24"],
+                    ["parameter": "certificateArn", "default_value": "arn:aws:acm:af-south-1:account-id:certificate/prd123"]
+                ]
+                break
+        }
+    }
+
+    // Generate HTML
+    html_to_be_rendered = "<table><tr>"
+    param_list = param_map
+    param_list.each { action ->
+        html_to_be_rendered = """
+        ${html_to_be_rendered}
+        <tr>
+        <td>
+        <label title=\"${action.parameter}\" class=\" \">${action.parameter}</label>
+        <input type=\"hidden\" class=\" \" name=\"value\" value=${action.parameter}>
+        </td>
+        <td>
+        <input type=\"text\" class=\" \" size=\"50\" name=\"value\" value=\"${action.default_value}\" > </br>
+        </td>
+        </tr>
+        """
+    }
+    html_to_be_rendered = "${html_to_be_rendered}</tr></table>"
+    return html_to_be_rendered
+
+} else {
+    // Return message if Action is 'Delete'
+    return "No RFC Information required for Delete Action"
+}
